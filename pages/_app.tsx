@@ -1,8 +1,18 @@
-import '../styles/globals.css'
-import type { AppProps } from 'next/app'
+import type { AppProps } from "next/app";
+import CssBaseline from "@mui/material/CssBaseline";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 function MyApp({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />
+  return (
+    <QueryClientProvider client={queryClient}>
+      <div style={{ fontFamily: "Roboto, Helvatica, Arial, sans-serif" }}>
+        <CssBaseline />
+        <Component {...pageProps} />
+      </div>
+    </QueryClientProvider>
+  );
 }
 
-export default MyApp
+export default MyApp;
