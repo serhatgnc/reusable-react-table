@@ -6,11 +6,14 @@ export default async function handler(
   res: NextApiResponse
 ) {
   try {
-    const { data, headers } = await axios.get<Api.Comments.Data[]>(
-      "https://gorest.co.in/public/v2/comments",
+    const { data, headers } = await axios.get<Api.Users.Data[]>(
+      "https://gorest.co.in/public/v2/users",
       {
         params: {
           page: req.query.page,
+        },
+        headers: {
+          "X-Pagination-Limit": 30,
         },
       }
     );

@@ -6,16 +6,16 @@ import { columns } from "./columns";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
-interface FetchCommentResponse {
-  data: Api.Comments.Data[];
+interface FetchUsersResponse {
+  data: Api.Users.Data[];
   maxPageSize: number;
 }
 
 const Home: NextPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
-  const fetchComments = async () => {
-    const { data } = await axios.get<FetchCommentResponse>("/api/comments", {
+  const fetchUsers = async () => {
+    const { data } = await axios.get<FetchUsersResponse>("/api/users", {
       params: {
         page: currentPage,
       },
@@ -24,9 +24,9 @@ const Home: NextPage = () => {
   };
 
   const { data, isFetching, isError, error, isSuccess } = useQuery<
-    FetchCommentResponse,
+    FetchUsersResponse,
     Error
-  >(["comments", currentPage], fetchComments, {
+  >(["users", currentPage], fetchUsers, {
     refetchOnWindowFocus: false,
     keepPreviousData: true,
   });
@@ -38,6 +38,8 @@ const Home: NextPage = () => {
     setCurrentPage(value);
   };
 
+  const x = <Box>Hello world</Box>;
+
   return (
     <Box padding={6}>
       {isError && <Alert severity="error">{error?.message}</Alert>}
@@ -45,10 +47,13 @@ const Home: NextPage = () => {
         <Table
           data={data.data}
           columns={columns}
-          pageCount={data.maxPageSize}
           isFetching={isFetching}
-          currentPage={currentPage}
-          onPaginationChange={handlePageChange}
+          pagination={{
+            pageCount: data.maxPageSize,
+            currentPage,
+            onPaginationChange: handlePageChange,
+          }}
+          headerComponent={x}
         />
       )}
     </Box>

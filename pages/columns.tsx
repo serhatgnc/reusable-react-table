@@ -8,7 +8,11 @@ export const columns = [
     header: "Email",
   },
   {
-    accessorKey: "body",
-    header: "Body",
+    accessorKey: "gender",
+    header: "gender",
+  },
+  {
+    accessorKey: "status",
+    header: "status",
   },
 ];

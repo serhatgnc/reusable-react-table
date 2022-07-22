@@ -1,4 +1,11 @@
-import { Pagination, Skeleton, Typography } from "@mui/material";
+import {
+  Box,
+  Divider,
+  Pagination,
+  Paper,
+  Skeleton,
+  Typography,
+} from "@mui/material";
 import {
   ColumnDef,
   flexRender,
@@ -11,7 +18,6 @@ import {
   StyledTableHead,
   StyledTableHeader,
   StyledTableRow,
-  StyledTableWrapper,
 } from "./styled";
 
 interface TableProps {
@@ -21,9 +27,11 @@ interface TableProps {
   skeletonCount?: number;
   skeletonHeight?: number;
   headerComponent?: JSX.Element;
-  pageCount: number;
-  currentPage: number;
-  onPaginationChange: (event: ChangeEvent<unknown>, value: number) => void;
+  pagination?: {
+    pageCount: number;
+    currentPage: number;
+    onPaginationChange: (event: ChangeEvent<unknown>, value: number) => void;
+  };
 }
 
 const Table: FC<TableProps> = ({
@@ -33,19 +41,22 @@ const Table: FC<TableProps> = ({
   skeletonCount = 10,
   skeletonHeight = 28,
   headerComponent,
-  pageCount,
-  currentPage,
-  onPaginationChange,
+  pagination,
 }) => {
   const memoizedData = useMemo(() => data, [data]);
   const memoizedColumns = useMemo(() => columns, [columns]);
 
+  const memoisedHeaderComponent = useMemo(
+    () => headerComponent,
+    [headerComponent]
+  );
+
   const { getHeaderGroups, getRowModel, getAllColumns } = useReactTable({
     data: memoizedData ?? [],
-    columns: memoizedColumns,
+    columns: memoizedColumns ?? [],
     getCoreRowModel: getCoreRowModel(),
     manualPagination: false,
-    pageCount,
+    pageCount: pagination?.pageCount,
   });
 
   const skeletons = Array.from({ length: skeletonCount }, (x, i) => i);
@@ -55,12 +66,13 @@ const Table: FC<TableProps> = ({
   const noDataFound = !isFetching && !memoizedData;
 
   return (
-    <StyledTableWrapper>
-      <>
-        {headerComponent && (
+    <Paper elevation={2} style={{ padding: "1rem" }}>
+      {headerComponent && (
+        <>
           <StyledTableHeader>{headerComponent}</StyledTableHeader>
-        )}
-      </>
+          <Divider style={{ margin: "1rem 0px" }} />
+        </>
+      )}
       <StyledTable>
         {!isFetching && (
           <StyledTableHead>
@@ -71,6 +83,7 @@ const Table: FC<TableProps> = ({
                     <Typography
                       variant="overline"
                       borderBottom="1px solid black"
+                      fontWeight={700}
                     >
                       {header.isPlaceholder
                         ? null
@@ -113,18 +126,20 @@ const Table: FC<TableProps> = ({
           )}
         </tbody>
       </StyledTable>
-      <Pagination
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          marginTop: "1rem",
-        }}
-        count={pageCount}
-        page={currentPage}
-        onChange={onPaginationChange}
-      />
-      {noDataFound && <div>No Data Found!</div>}
-    </StyledTableWrapper>
+      {noDataFound && <Box textAlign="center">No Data Found</Box>}
+      {pagination && (
+        <Pagination
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            marginTop: "1rem",
+          }}
+          count={pagination?.pageCount}
+          page={pagination?.currentPage}
+          onChange={pagination?.onPaginationChange}
+        />
+      )}
+    </Paper>
   );
 };
 

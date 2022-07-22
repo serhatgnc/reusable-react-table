@@ -1,11 +1,11 @@
 declare module Api {
-  declare module Comments {
+  declare module Users {
     export interface Data {
       id: number;
-      post_id: number;
       name: string;
       email: string;
-      body: string;
+      gender: string;
+      status: string;
     }
   }
 }
