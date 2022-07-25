@@ -1,37 +1,38 @@
 import {
   Box,
-  Divider,
-  Pagination,
   Paper,
   Skeleton,
-  Typography,
+  Table as MuiTable,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  TextField,
 } from "@mui/material";
 import {
+  Cell,
   ColumnDef,
   flexRender,
   getCoreRowModel,
+  Row,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChangeEvent, FC, memo, useMemo } from "react";
-import {
-  StyledTable,
-  StyledTableHead,
-  StyledTableHeader,
-  StyledTableRow,
-} from "./styled";
+import { debounce } from "lodash";
+import { ChangeEvent, FC, memo, useMemo, useState } from "react";
+import { StyledPagination, StyledTableRow } from "./styled";
 
 interface TableProps {
   data: any[];
   columns: ColumnDef<any>[];
-  isFetching: boolean;
+  isFetching?: boolean;
   skeletonCount?: number;
   skeletonHeight?: number;
   headerComponent?: JSX.Element;
-  pagination?: {
-    pageCount: number;
-    currentPage: number;
-    onPaginationChange: (event: ChangeEvent<unknown>, value: number) => void;
-  };
+  pageCount?: number;
+  currentPage?: (page: number) => void;
+  search?: (value: string) => void;
+  onClickRow?: (cell: Cell<any, unknown>, row: Row<any>) => void;
+  searchLabel?: string;
 }
 
 const Table: FC<TableProps> = ({
@@ -41,8 +42,14 @@ const Table: FC<TableProps> = ({
   skeletonCount = 10,
   skeletonHeight = 28,
   headerComponent,
-  pagination,
+  pageCount,
+  search,
+  onClickRow,
+  currentPage,
+  searchLabel = "Search",
 }) => {
+  const [paginationPage, setPaginationPage] = useState(1);
+
   const memoizedData = useMemo(() => data, [data]);
   const memoizedColumns = useMemo(() => columns, [columns]);
 
@@ -52,91 +59,104 @@ const Table: FC<TableProps> = ({
   );
 
   const { getHeaderGroups, getRowModel, getAllColumns } = useReactTable({
-    data: memoizedData ?? [],
-    columns: memoizedColumns ?? [],
+    data: memoizedData,
+    columns: memoizedColumns,
     getCoreRowModel: getCoreRowModel(),
-    manualPagination: false,
-    pageCount: pagination?.pageCount,
+    manualPagination: true,
+    pageCount: pageCount,
   });
 
   const skeletons = Array.from({ length: skeletonCount }, (x, i) => i);
 
   const columnCount = getAllColumns().length;
 
-  const noDataFound = !isFetching && !memoizedData;
+  const noDataFound =
+    !isFetching && (!memoizedData || memoizedData.length === 0);
+
+  const onChangeSearchField = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    search && search(e.target.value);
+  };
 
   return (
-    <Paper elevation={2} style={{ padding: "1rem" }}>
-      {headerComponent && (
-        <>
-          <StyledTableHeader>{headerComponent}</StyledTableHeader>
-          <Divider style={{ margin: "1rem 0px" }} />
-        </>
-      )}
-      <StyledTable>
-        {!isFetching && (
-          <StyledTableHead>
-            {getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th key={header.id}>
-                    <Typography
-                      variant="overline"
-                      borderBottom="1px solid black"
-                      fontWeight={700}
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </Typography>
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </StyledTableHead>
+    <Paper elevation={2} style={{ padding: "1rem 0px" }}>
+      <Box paddingX="1rem">
+        {headerComponent && <Box>{memoisedHeaderComponent}</Box>}
+        {search && (
+          <TextField
+            onChange={debounce(onChangeSearchField, 1000)}
+            size="small"
+            label={searchLabel}
+            margin="normal"
+            variant="standard"
+          />
         )}
-        <tbody>
+      </Box>
+      <MuiTable>
+        {!isFetching && (
+          <TableHead>
+            {getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableCell key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableHead>
+        )}
+        <TableBody>
           {!isFetching ? (
             getRowModel().rows.map((row) => (
               <StyledTableRow key={row.id}>
                 {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id}>
+                  <TableCell
+                    onClick={() => onClickRow?.(cell, row)}
+                    key={cell.id}
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
+                  </TableCell>
                 ))}
               </StyledTableRow>
             ))
           ) : (
             <>
               {skeletons.map((skeleton) => (
-                <tr key={skeleton}>
+                <TableRow key={skeleton}>
                   {Array.from({ length: columnCount }, (x, i) => i).map(
                     (elm) => (
-                      <td key={elm}>
+                      <TableCell key={elm}>
                         <Skeleton height={skeletonHeight} />
-                      </td>
+                      </TableCell>
                     )
                   )}
-                </tr>
+                </TableRow>
               ))}
             </>
           )}
-        </tbody>
-      </StyledTable>
-      {noDataFound && <Box textAlign="center">No Data Found</Box>}
-      {pagination && (
-        <Pagination
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            marginTop: "1rem",
+        </TableBody>
+      </MuiTable>
+      {noDataFound && (
+        <Box my={2} textAlign="center">
+          No Data Found
+        </Box>
+      )}
+      {pageCount && currentPage && (
+        <StyledPagination
+          count={pageCount}
+          page={paginationPage}
+          onChange={(event: ChangeEvent<unknown>, page: number) => {
+            setPaginationPage(page === 0 ? 1 : page);
+            currentPage?.(page === 0 ? 1 : page);
           }}
-          count={pagination?.pageCount}
-          page={pagination?.currentPage}
-          onChange={pagination?.onPaginationChange}
+          color="primary"
         />
       )}
     </Paper>

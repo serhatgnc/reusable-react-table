@@ -9,17 +9,16 @@ export default async function handler(
     const { data, headers } = await axios.get<Api.Users.Data[]>(
       "https://gorest.co.in/public/v2/users",
       {
-        params: {
-          page: req.query.page,
-        },
-        headers: {
-          "X-Pagination-Limit": 30,
-        },
+        params: req.query,
       }
     );
-    return res
-      .status(200)
-      .json({ data, maxPageSize: Number(headers["x-pagination-pages"]) });
+    return res.status(200).json({
+      data,
+      maxPageSize:
+        Number(headers["x-pagination-pages"]) === 0
+          ? 1
+          : Number(headers["x-pagination-pages"]),
+    });
   } catch (error) {
     return res.status(404);
   }

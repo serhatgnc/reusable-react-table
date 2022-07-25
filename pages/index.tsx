@@ -1,4 +1,4 @@
-import { Alert, Box } from "@mui/material";
+import { Alert, Box, Button, Typography } from "@mui/material";
 import type { NextPage } from "next";
 import axios from "axios";
 import Table from "../components/Table";
@@ -12,13 +12,17 @@ interface FetchUsersResponse {
 }
 
 const Home: NextPage = () => {
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState<number | undefined>(1);
+  const [search, setSearch] = useState<string | undefined>("");
 
   const fetchUsers = async () => {
+    const params = {
+      ...(!search && { page: currentPage }),
+      ...(search && { name: search }),
+    };
+
     const { data } = await axios.get<FetchUsersResponse>("/api/users", {
-      params: {
-        page: currentPage,
-      },
+      params,
     });
     return data;
   };
@@ -26,19 +30,23 @@ const Home: NextPage = () => {
   const { data, isFetching, isError, error, isSuccess } = useQuery<
     FetchUsersResponse,
     Error
-  >(["users", currentPage], fetchUsers, {
+  >(["users", currentPage, search], fetchUsers, {
     refetchOnWindowFocus: false,
     keepPreviousData: true,
   });
 
-  const handlePageChange = (
-    event: React.ChangeEvent<unknown>,
-    value: number
-  ) => {
-    setCurrentPage(value);
+  const onClickRow = (cell: any, row: any) => {
+    console.log({ cell, row });
   };
 
-  const x = <Box>Hello world</Box>;
+  const Header = (
+    <Box display="flex" justifyContent="space-between">
+      <Typography variant="h4" alignItems="center">
+        User Table
+      </Typography>
+      <Button>Action Button</Button>
+    </Box>
+  );
 
   return (
     <Box padding={6}>
@@ -48,12 +56,12 @@ const Home: NextPage = () => {
           data={data.data}
           columns={columns}
           isFetching={isFetching}
-          pagination={{
-            pageCount: data.maxPageSize,
-            currentPage,
-            onPaginationChange: handlePageChange,
-          }}
-          headerComponent={x}
+          headerComponent={Header}
+          onClickRow={onClickRow}
+          pageCount={data.maxPageSize}
+          currentPage={setCurrentPage}
+          search={setSearch}
+          searchLabel="Search by name"
         />
       )}
     </Box>

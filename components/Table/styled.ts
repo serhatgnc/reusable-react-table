@@ -1,25 +1,20 @@
-import styled from "@emotion/styled";
-import { Box } from "@mui/system";
+import { Pagination, styled, TableRow } from "@mui/material";
 
-export const StyledTableHeader = styled(Box)`
-  padding: 0rem 1rem;
-`;
-
-export const StyledTable = styled.table`
-  width: 100%;
-  max-height: 400px;
-  td,
-  th {
-    padding: 0.5rem 1rem;
+export const StyledTableRow = styled(TableRow)`
+  &:nth-of-type(odd) {
+    background-color: #f1f1f1;
   }
-`;
-
-export const StyledTableHead = styled.thead`
-  text-align: left;
-`;
-
-export const StyledTableRow = styled.tr`
+  &:last-child td,
+  &:last-child th {
+    border: 0;
+  }
   :hover {
-    background: #a6a6a6;
+    background-color: #d9d9d9;
   }
+`;
+
+export const StyledPagination = styled(Pagination)`
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
 `;
