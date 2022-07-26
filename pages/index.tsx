@@ -59,7 +59,7 @@ const Home: NextPage = () => {
           headerComponent={Header}
           onClickRow={onClickRow}
           pageCount={data.maxPageSize}
-          currentPage={setCurrentPage}
+          page={setCurrentPage}
           search={setSearch}
           searchLabel="Search by name"
         />
