@@ -6,11 +6,6 @@ import { columns } from "./columns";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
-interface FetchUsersResponse {
-  data: Api.Users.Data[];
-  maxPageSize: number;
-}
-
 const Home: NextPage = () => {
   const [currentPage, setCurrentPage] = useState<number | undefined>(1);
   const [search, setSearch] = useState<string | undefined>("");
@@ -21,14 +16,17 @@ const Home: NextPage = () => {
       ...(search && { name: search }),
     };
 
-    const { data } = await axios.get<FetchUsersResponse>("/api/users", {
-      params,
-    });
+    const { data } = await axios.get<Api.Users.FetchUsersResponse>(
+      "/api/users",
+      {
+        params,
+      }
+    );
     return data;
   };
 
   const { data, isFetching, isError, error, isSuccess } = useQuery<
-    FetchUsersResponse,
+    Api.Users.FetchUsersResponse,
     Error
   >(["users", currentPage, search], fetchUsers, {
     refetchOnWindowFocus: false,

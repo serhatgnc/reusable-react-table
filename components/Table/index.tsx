@@ -30,7 +30,7 @@ interface TableProps {
   headerComponent?: JSX.Element;
   pageCount?: number;
   page?: (page: number) => void;
-  search?: (value: string) => void;
+  search?: (search: string) => void;
   onClickRow?: (cell: Cell<any, unknown>, row: Row<any>) => void;
   searchLabel?: string;
 }
@@ -62,7 +62,7 @@ const Table: FC<TableProps> = ({
     columns: memoizedColumns,
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
-    pageCount: pageCount,
+    pageCount,
   });
 
   const skeletons = Array.from({ length: skeletonCount }, (x, i) => i);
