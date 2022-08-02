@@ -89,7 +89,7 @@ const Table: FC<TableProps> = ({
   return (
     <Paper elevation={2} style={{ padding: "1rem 0px" }}>
       <Box paddingX="1rem">
-        {headerComponent && <Box>{memoisedHeaderComponent}</Box>}
+        {memoisedHeaderComponent && <Box>{memoisedHeaderComponent}</Box>}
         {search && (
           <TextField
             onChange={debounce(handleSearchChange, 1000)}
