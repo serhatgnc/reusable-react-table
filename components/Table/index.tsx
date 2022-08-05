@@ -100,56 +100,61 @@ const Table: FC<TableProps> = ({
           />
         )}
       </Box>
-      <MuiTable>
-        {!isFetching && (
-          <TableHead>
-            {getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableCell key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableHead>
-        )}
-        <TableBody>
-          {!isFetching ? (
-            getRowModel().rows.map((row) => (
-              <StyledTableRow key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell
-                    onClick={() => onClickRow?.(cell, row)}
-                    key={cell.id}
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </StyledTableRow>
-            ))
-          ) : (
-            <>
-              {skeletons.map((skeleton) => (
-                <TableRow key={skeleton}>
-                  {Array.from({ length: columnCount }, (x, i) => i).map(
-                    (elm) => (
-                      <TableCell key={elm}>
-                        <Skeleton height={skeletonHeight} />
-                      </TableCell>
-                    )
-                  )}
+      <Box style={{ overflowX: "auto" }}>
+        <MuiTable>
+          {!isFetching && (
+            <TableHead>
+              {getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableCell key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableCell>
+                  ))}
                 </TableRow>
               ))}
-            </>
+            </TableHead>
           )}
-        </TableBody>
-      </MuiTable>
+          <TableBody>
+            {!isFetching ? (
+              getRowModel().rows.map((row) => (
+                <StyledTableRow key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell
+                      onClick={() => onClickRow?.(cell, row)}
+                      key={cell.id}
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </StyledTableRow>
+              ))
+            ) : (
+              <>
+                {skeletons.map((skeleton) => (
+                  <TableRow key={skeleton}>
+                    {Array.from({ length: columnCount }, (x, i) => i).map(
+                      (elm) => (
+                        <TableCell key={elm}>
+                          <Skeleton height={skeletonHeight} />
+                        </TableCell>
+                      )
+                    )}
+                  </TableRow>
+                ))}
+              </>
+            )}
+          </TableBody>
+        </MuiTable>
+      </Box>
       {noDataFound && (
         <Box my={2} textAlign="center">
           No Data Found
